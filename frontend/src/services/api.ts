@@ -1,4 +1,5 @@
-const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
+const API_BASE_URL =
+  `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api/v1`;
 
 export interface ProbableCauseBreakdown {
   primary_factor: string;
@@ -38,8 +39,6 @@ export interface ProjectMapHover {
   probable_cause?: ProbableCauseBreakdown;
 }
 
-
-
 export interface BaselineComparisonReport {
   project_id: string;
   baseline_period: string;
@@ -71,7 +70,10 @@ export interface BaselineComparisonReport {
 export interface SatelliteDataRepository {
   project_id: string;
   project_title: string;
-  coordinates?: { latitude: number; longitude: number };
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
   total_images_captured: number;
   latest_observation_date: string;
   images: Array<{
@@ -138,53 +140,110 @@ export interface CopilotChatResponse {
 
 export async function fetchMapProjects(): Promise<ProjectMapHover[]> {
   const res = await fetch(`${API_BASE_URL}/map/hover-info`);
-  if (!res.ok) throw new Error("Failed to fetch map projects");
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch map projects");
+  }
+
   return res.json();
 }
 
+export async function fetchBaselineComparison(
+  projectId: string
+): Promise<BaselineComparisonReport> {
+  const res = await fetch(
+    `${API_BASE_URL}/baseline/${projectId}/comparison`
+  );
 
+  if (!res.ok) {
+    throw new Error("Failed to fetch baseline comparison");
+  }
 
-export async function fetchBaselineComparison(projectId: string): Promise<BaselineComparisonReport> {
-  const res = await fetch(`${API_BASE_URL}/baseline/${projectId}/comparison`);
-  if (!res.ok) throw new Error("Failed to fetch baseline comparison");
   return res.json();
 }
 
-export async function fetchSatelliteRepository(projectId: string): Promise<SatelliteDataRepository> {
-  const res = await fetch(`${API_BASE_URL}/satellite-data/${projectId}`);
-  if (!res.ok) throw new Error("Failed to fetch satellite repository");
+export async function fetchSatelliteRepository(
+  projectId: string
+): Promise<SatelliteDataRepository> {
+  const res = await fetch(
+    `${API_BASE_URL}/satellite-data/${projectId}`
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch satellite repository");
+  }
+
   return res.json();
 }
 
-export async function fetchImpactScore(projectId: string): Promise<ImpactScoreBreakdown> {
-  const res = await fetch(`${API_BASE_URL}/scoring/${projectId}`);
-  if (!res.ok) throw new Error("Failed to fetch impact score");
+export async function fetchImpactScore(
+  projectId: string
+): Promise<ImpactScoreBreakdown> {
+  const res = await fetch(
+    `${API_BASE_URL}/scoring/${projectId}`
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch impact score");
+  }
+
   return res.json();
 }
 
-export async function fetchTrajectory(projectId: string): Promise<TrajectoryResponse> {
-  const res = await fetch(`${API_BASE_URL}/trajectory/${projectId}`);
-  if (!res.ok) throw new Error("Failed to fetch trajectory");
+export async function fetchTrajectory(
+  projectId: string
+): Promise<TrajectoryResponse> {
+  const res = await fetch(
+    `${API_BASE_URL}/trajectory/${projectId}`
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch trajectory");
+  }
+
   return res.json();
 }
 
-export async function sendCopilotChat(query: string, projectId: string): Promise<CopilotChatResponse> {
+export async function sendCopilotChat(
+  query: string,
+  projectId: string
+): Promise<CopilotChatResponse> {
   const res = await fetch(`${API_BASE_URL}/copilot/chat`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query, project_id: projectId }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query,
+      project_id: projectId,
+    }),
   });
-  if (!res.ok) throw new Error("Copilot chat failed");
+
+  if (!res.ok) {
+    throw new Error("Copilot chat failed");
+  }
+
   return res.json();
 }
 
-export async function uploadDocumentToRAG(file: File): Promise<any> {
+export async function uploadDocumentToRAG(
+  file: File
+): Promise<any> {
   const formData = new FormData();
+
   formData.append("file", file);
-  const res = await fetch(`${API_BASE_URL}/copilot/upload-document`, {
-    method: "POST",
-    body: formData,
-  });
-  if (!res.ok) throw new Error("Document upload failed");
+
+  const res = await fetch(
+    `${API_BASE_URL}/copilot/upload-document`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Document upload failed");
+  }
+
   return res.json();
 }
